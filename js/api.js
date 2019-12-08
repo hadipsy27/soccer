@@ -95,6 +95,7 @@ function resultKlasemen(data) {
 function getTeams() {
 	var teams = getTim();
 	teams.then(function (data) {
+		dataTim = data;
 		var str = JSON.stringify(data).replace(/http:/g, "https:");
 		data = JSON.parse(str);
 
