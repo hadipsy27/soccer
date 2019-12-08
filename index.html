@@ -34,7 +34,7 @@
 	<script type="text/javascript" src="js/api.js"></script>
 
 	<script type="text/javascript">
-		//Check service worker on browser
+		// Periksa service Worker
 		if (!('serviceWorker' in navigator)) {
 			console.log("This browser does not support service worker.");
 		} else {
@@ -54,14 +54,14 @@
 				});
 		}
 
-		// Ask permission to use Notification API
+		// Meminta ijin menggunakan Notification API
 		function requestPermission() {
 			Notification.requestPermission().then(function (result) {
 				if (result === "denied") {
-					console.log("Notification feature is not allowed.");
+					console.log("Fitur notifikasi tidak diijinkan.");
 					return;
 				} else if (result === "default") {
-					console.error("User has closed permission dialog.");
+					console.error("Pengguna menutup kotak dialog permintaan ijin.");
 					return;
 				}
 				if (('PushManager' in window)) {

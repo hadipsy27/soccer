@@ -1,4 +1,4 @@
-const API_KEY = '108a8f05027f4f1dbaa17b4c48e4eefa';
+const API_KEY = "108a8f05027f4f1dbaa17b4c48e4eefa";
 const LEAGUE_ID = 2021;
 var base_url = "https://api.football-data.org/v2/";
 var url_tim = `${base_url}competitions/${LEAGUE_ID}/teams`;
@@ -8,10 +8,10 @@ var dataTim;
 var fetchApi = url => {
 	return fetch(url, {
 		headers: {
-			'X-Auth-Token': API_KEY
+			"X-Auth-Token": API_KEY
 		}
 	});
-}
+};
 
 // Blok kode yang akan di panggil jika fetch berhasil
 function status(response) {
@@ -38,12 +38,11 @@ function error(error) {
 
 // Blok kode untuk melakukan request data json
 function getKlasemen() {
-	if ('caches' in window) {
+	if ("caches" in window) {
 		caches.match(url_klasemen).then(function (response) {
 			if (response) {
 				response.json().then(function (data) {
 					resultKlasemen(data);
-
 				});
 			}
 		});
@@ -54,7 +53,7 @@ function getKlasemen() {
 		.then(json)
 		.then(function (data) {
 			// console.log(data)
-			resultKlasemen(data)
+			resultKlasemen(data);
 		})
 		.catch(error);
 }
@@ -67,10 +66,10 @@ function getTim() {
 }
 
 function resultKlasemen(data) {
-	var dbklasemenHtml = '';
+	var dbklasemenHtml = "";
 	var klasemenTitle = `<center style ="font-weight: bold; font-size: 40px;">${data.competition.name}  </center>`;
 
-	var str = JSON.stringify(data).replace(/http:/g, 'https:');
+	var str = JSON.stringify(data).replace(/http:/g, "https:");
 	data = JSON.parse(str);
 
 	data.standings[0].table.forEach(function (club) {
@@ -87,22 +86,21 @@ function resultKlasemen(data) {
 					<td>${club.goalDifference}</td>
 					<td>${club.points}</td>
 				</tr>
-		`
+		`;
 	});
 	document.getElementById("klasemen").innerHTML = dbklasemenHtml;
 	document.getElementById("klasemenTitle").innerHTML = klasemenTitle;
-
 }
 
 function getTeams() {
 	var teams = getTim();
 	teams.then(function (data) {
-		var str = JSON.stringify(data).replace(/http:/g, 'https:');
+		var str = JSON.stringify(data).replace(/http:/g, "https:");
 		data = JSON.parse(str);
 
-		var dataTim = data;
-		var timHtml = '<center><h4><b>Teams</b></h4></center>';
-		timHtml = '';
+		dataTim = data;
+		var timHtml = '<center><h4><b>Tim</b></h4></center>';
+
 		data.teams.forEach(function (team) {
 			timHtml += `
 				<div class="col s12 m6">
@@ -120,17 +118,16 @@ function getTeams() {
 					</div>
 				</div>
 			`;
-		})
+		});
 		document.getElementById("teams").innerHTML = timHtml;
-	})
+	});
 }
 
 function getTimFav() {
 	var teams = getFavTeams();
 	teams.then(function (data) {
-
 		dataTim = data;
-		var favTimHtml = '';
+		var favTimHtml = '<center><h4><b>Tim Favoritmu</b></h4></center>';
 		data.forEach(function (team) {
 			favTimHtml += `
 			<div class="col s12 m6">
@@ -148,84 +145,84 @@ function getTimFav() {
 					</div>
 				</div>
 			`;
-		})
+		});
+		if (data.length == 0) favTimHtml += '<h6 class="center">Kamu tidak memiliki tim favorit!</6>'
 		document.getElementById("timFav").innerHTML = favTimHtml;
-	})
+	});
 }
 
 // opereasi database indexedDB
-var dbPromise = idb.open('football', 1, upgradeDb => {
+var dbPromise = idb.open("football", 1, upgradeDb => {
 	switch (upgradeDb.oldVersion) {
 		case 0:
-			upgradeDb.createObjectStore('tim', {
-				'keyPath': 'id'
-			})
+			upgradeDb.createObjectStore("tim", {
+				keyPath: "id"
+			});
 	}
 });
 
 function insertTeam(tim) {
-	dbPromise.then(function (db) {
-		var tx = db.transaction('tim', 'readwrite');
-		var store = tx.objectStore('tim')
-		tim.createAt = new Date().getTime()
-		store.put(tim)
-		return tx.complete;
-
-	}).then(function () {
-		M.toast({
-			html: `${tim.name} berhasil di simpan`
+	dbPromise
+		.then(function (db) {
+			var tx = db.transaction("tim", "readwrite");
+			var store = tx.objectStore("tim");
+			tim.createAt = new Date().getTime();
+			store.put(tim);
+			return tx.complete;
 		})
-		console.log("Pertandingan berhasil disimpan");
-
-	}).catch(error => {
-		console.error("Pertandingan gagal disimpan", error);
-
-	});
+		.then(function () {
+			M.toast({
+				html: `${tim.name} berhasil di simpan`
+			});
+			console.log("Pertandingan berhasil disimpan");
+		})
+		.catch(error => {
+			console.error("Pertandingan gagal disimpan", error);
+		});
 }
 
 function deleteTeam(idTim) {
-	dbPromise.then(function (db) {
-		var tx = db.transaction('tim', 'readwrite');
-		var store = tx.objectStore('tim');
-		store.delete(idTim);
-		return tx.complete;
-	}).then(function () {
-		M.toast({
-			html: 'Team berhasil dihapus'
-		});
-		if (Notification.permission === 'granted') {
-			navigator.serviceWorker.ready.then(function (registration) {
-				registration.showNotification("Menghapus dari favorit");
+	dbPromise
+		.then(function (db) {
+			var tx = db.transaction("tim", "readwrite");
+			var store = tx.objectStore("tim");
+			store.delete(idTim);
+			return tx.complete;
+		})
+		.then(function () {
+			M.toast({
+				html: "Team berhasil dihapus"
 			});
-		} else {
-			console.error("Fitur notifikasi tidak diijinkan");
-
-		}
-		getTimFav();
-	}).catch(error => {
-		console.error('Error', error);
-
-	});
+			if (Notification.permission === "granted") {
+				navigator.serviceWorker.ready.then(function (registration) {
+					registration.showNotification("Menghapus dari favorit");
+				});
+			} else {
+				console.error("Fitur notifikasi tidak diijinkan");
+			}
+			getTimFav();
+		})
+		.catch(error => {
+			console.error("Error", error);
+		});
 }
 
 var getFavTeams = () => {
 	return dbPromise.then(function (db) {
-		var tx = db.transaction('tim', 'readonly');
-		var store = tx.objectStore('tim');
+		var tx = db.transaction("tim", "readonly");
+		var store = tx.objectStore("tim");
 		return store.getAll();
-	})
-}
+	});
+};
 
 var insertTeamListener = idTim => {
-	var tim = dataTim.teams.filter(el => el.id == idTim)[0]
+	var tim = dataTim.teams.filter(el => el.id == idTim)[0];
 	insertTeam(tim);
-}
+};
 
 var deleteTeamListener = idTim => {
-	var conf = confirm("Anda yakin ingin menghapus?")
+	var conf = confirm("Anda yakin ingin menghapus?");
 	if (conf == true) {
 		deleteTeam(idTim);
-
-
 	}
-}
+};
